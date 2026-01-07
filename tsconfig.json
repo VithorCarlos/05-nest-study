@@ -1,10 +1,8 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
-    "moduleResolution": "Node",
-    "target": "ES2022",
+    "module": "commonjs",
+    "target": "es2024",
     "esModuleInterop": true,
-    "isolatedModules": true,
     "declaration": true,
     "strict": true,
     "removeComments": true,
@@ -20,6 +18,10 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["vitest/globals"]
   }
 }
