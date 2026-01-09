@@ -1,10 +1,12 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import type { PrismaService } from '@/prisma/prisma.service.js';
+import { JwtService } from '@nestjs/jwt';
 
-describe('Create Account (E2E)', () => {
+describe('Create Questions (E2E)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let jwt: JwtService;
 
   beforeAll(async () => {
     const { Test } = await import('@nestjs/testing');
@@ -18,22 +20,35 @@ describe('Create Account (E2E)', () => {
     app = moduleRef.createNestApplication();
 
     prisma = moduleRef.get(PrismaService);
+    jwt = moduleRef.get(JwtService);
 
     await app.init();
   });
 
-  test('[POST] /accounts', async () => {
-    const response = await request(app.getHttpServer()).post('/accounts').send({
-      name: 'John Doe',
-      email: 'johndoe@email.com',
-      password: '123456',
+  test('[POST] /questions', async () => {
+    const user = await prisma.user.create({
+      data: {
+        name: 'John Doe',
+        email: 'johndoe@email.com',
+        password: '123456',
+      },
     });
+
+    const accessToken = jwt.sign({ sub: user.id });
+
+    const response = await request(app.getHttpServer())
+      .post('/questions')
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        title: 'New Question',
+        content: 'Content Of Question',
+      });
 
     expect(response.statusCode).toBe(201);
 
-    const userOnDatabase = await prisma.user.findUnique({
+    const userOnDatabase = await prisma.question.findUnique({
       where: {
-        email: 'johndoe@email.com',
+        slug: 'new-question',
       },
     });
 
