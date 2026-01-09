@@ -1,5 +1,5 @@
-import { PrismaPg } from '@prisma/adapter-pg';
 import 'dotenv/config';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from 'generated/prisma/client';
 import { execSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
@@ -8,13 +8,12 @@ const schemaId = randomUUID();
 let prisma: PrismaClient;
 
 function gerenateUniqueDatabaseUrl(schemaId: string) {
-  if (!process.env.DATABASE_URL || !process.env.DATABASE_SCHEMA) {
+  if (!process.env.DATABASE_URL) {
     throw new Error('Please provide unique DATABASE_URL enviroment variable');
   }
 
   const url = new URL(process.env.DATABASE_URL);
   url.searchParams.set('schema', schemaId);
-
   return url.toString();
 }
 
@@ -34,8 +33,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  const user = await prisma.user.findMany();
-  console.log({ user });
   await prisma.$executeRawUnsafe(`DROP SCHEMA IF EXISTS "${schemaId}" CASCADE`);
+  const teste = await prisma.$executeRaw`SELECT current_schema();`;
   await prisma.$disconnect();
 });

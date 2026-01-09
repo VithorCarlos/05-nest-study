@@ -1,19 +1,24 @@
-import { AppModule } from '@/app.module';
-import { PrismaService } from '@/prisma/prisma.service';
 import { INestApplication } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
 import request from 'supertest';
+import type { PrismaService } from '@/prisma/prisma.service.js';
 
 describe('Create Account (E2E)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
 
   beforeAll(async () => {
+    const { Test } = await import('@nestjs/testing');
+    const { AppModule } = await import('../app.module.js');
+    const { PrismaService } = await import('../prisma/prisma.service.js');
+
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleRef.createNestApplication();
+
+    const databasetest = process.env.DATABASE_URL;
+    console.log({ databasetest });
 
     prisma = moduleRef.get(PrismaService);
 
