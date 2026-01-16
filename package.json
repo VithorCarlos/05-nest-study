@@ -30,6 +30,7 @@
     "@prisma/client": "^7.2.0",
     "@swc/cli": "^0.7.9",
     "bcryptjs": "^3.0.3",
+    "dayjs": "^1.11.19",
     "passport-jwt": "^4.0.1",
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
@@ -40,6 +41,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
+    "@faker-js/faker": "^10.2.0",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",

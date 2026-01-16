@@ -5,6 +5,7 @@ export const CurrentUser = createParamDecorator(
   (_, context: ExecutionContext) => {
     const request = context.switchToHttp().getRequest();
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return request.user as UserPayload;
   },
 );
