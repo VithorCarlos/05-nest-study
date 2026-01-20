@@ -3,7 +3,7 @@ import request from 'supertest';
 import type { PrismaService } from '@/prisma/prisma.service.js';
 import { JwtService } from '@nestjs/jwt';
 
-describe('Fetch Recent Questions (E2E)', () => {
+describe('Create Questions (E2E)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let jwt: JwtService;
@@ -11,7 +11,8 @@ describe('Fetch Recent Questions (E2E)', () => {
   beforeAll(async () => {
     const { Test } = await import('@nestjs/testing');
     const { AppModule } = await import('../app.module.js');
-    const { PrismaService } = await import('../prisma/prisma.service.js');
+    const { PrismaService } =
+      await import('../database/prisma/prisma.service.js');
 
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
@@ -25,7 +26,7 @@ describe('Fetch Recent Questions (E2E)', () => {
     await app.init();
   });
 
-  test('[GET] /questions', async () => {
+  test('[POST] /questions', async () => {
     const user = await prisma.user.create({
       data: {
         name: 'John Doe',
@@ -36,37 +37,22 @@ describe('Fetch Recent Questions (E2E)', () => {
 
     const accessToken = jwt.sign({ sub: user.id });
 
-    await prisma.question.createMany({
-      data: [
-        {
-          title: 'Question 01',
-          slug: 'question-01',
-          content: 'Question Content',
-          authorId: user.id,
-        },
-        {
-          title: 'Question 02',
-          slug: 'question-02',
-          content: 'Question Content',
-          authorId: user.id,
-        },
-      ],
-    });
-
     const response = await request(app.getHttpServer())
-      .get('/questions')
+      .post('/questions')
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         title: 'New Question',
         content: 'Content Of Question',
       });
 
-    expect(response.statusCode).toBe(200);
-    expect(response.body).toEqual({
-      questions: [
-        expect.objectContaining({ title: 'Question 01' }),
-        expect.objectContaining({ title: 'Question 02' }),
-      ],
+    expect(response.statusCode).toBe(201);
+
+    const userOnDatabase = await prisma.question.findUnique({
+      where: {
+        slug: 'new-question',
+      },
     });
+
+    expect(userOnDatabase).toBeTruthy();
   });
 });

@@ -4,10 +4,10 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { PrismaClient } from '../../generated/prisma/client';
+import { PrismaClient } from '../../../../generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { ConfigService } from '@nestjs/config';
-import { Env } from '@/env';
+import { Env } from '@/infra/env';
 
 @Injectable()
 export class PrismaService
