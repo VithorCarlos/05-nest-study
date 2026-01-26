@@ -37,6 +37,7 @@ export default [
   },
   {
     rules: {
+      '@typescript-eslint/unbound-method': 'off',
       'no-useless-constructor': 'off',
       'require-await': 'off',
       '@typescript-eslint/no-floating-promises': 'off',
