@@ -13,7 +13,7 @@ export class PrismaStudentMapper {
       new UniqueEntityId(raw.id),
     );
   }
-  //domain to prisma
+
   static toPrisma(student: Student): Prisma.UserUncheckedCreateInput {
     return {
       id: student.id.toString(),
