@@ -1,36 +1,32 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
-import type { PrismaService } from '@/infra/database/prisma/prisma.service.js';
 import { hash } from 'bcryptjs';
+import { StudentFacotry } from 'test/factories/make-student.js';
+import { DatabaseModule } from '@/infra/database/database.module.js';
 
 describe('Autenticate (E2E)', () => {
   let app: INestApplication;
-  let prisma: PrismaService;
+  let studentFactory: StudentFacotry;
 
   beforeAll(async () => {
     const { Test } = await import('@nestjs/testing');
     const { AppModule } = await import('../../app.module.js');
-    const { PrismaService } =
-      await import('../../database/prisma/prisma.service.js');
 
     const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule, DatabaseModule],
+      providers: [StudentFacotry],
     }).compile();
 
     app = moduleRef.createNestApplication();
-
-    prisma = moduleRef.get(PrismaService);
+    studentFactory = moduleRef.get(StudentFacotry);
 
     await app.init();
   });
 
   test('[POST] /sessions', async () => {
-    await prisma.user.create({
-      data: {
-        name: 'John Doe',
-        email: 'johndoe@email.com',
-        password: await hash('123456', 8),
-      },
+    await studentFactory.makePrismaStudent({
+      email: 'johndoe@email.com',
+      password: await hash('123456', 8),
     });
 
     const response = await request(app.getHttpServer()).post('/sessions').send({
