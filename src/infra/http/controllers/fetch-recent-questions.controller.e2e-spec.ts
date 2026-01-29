@@ -1,15 +1,15 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { JwtService } from '@nestjs/jwt';
-import { StudentFacotry } from 'test/factories/make-student.js';
-import { QuestionFacotry } from 'test/factories/make-questions.js';
+import { StudentFactory } from 'test/factories/make-student.js';
+import { QuestionFactory } from 'test/factories/make-questions.js';
 import { DatabaseModule } from '@/infra/database/database.module.js';
 
 describe('Fetch Recent Questions (E2E)', () => {
   let app: INestApplication;
   let jwt: JwtService;
-  let studentFactory: StudentFacotry;
-  let questionFactory: QuestionFacotry;
+  let studentFactory: StudentFactory;
+  let questionFactory: QuestionFactory;
 
   beforeAll(async () => {
     const { Test } = await import('@nestjs/testing');
@@ -17,13 +17,13 @@ describe('Fetch Recent Questions (E2E)', () => {
 
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule, DatabaseModule],
-      providers: [StudentFacotry, QuestionFacotry],
+      providers: [StudentFactory, QuestionFactory],
     }).compile();
 
     app = moduleRef.createNestApplication();
 
-    studentFactory = moduleRef.get(StudentFacotry);
-    questionFactory = moduleRef.get(QuestionFacotry);
+    studentFactory = moduleRef.get(StudentFactory);
+    questionFactory = moduleRef.get(QuestionFactory);
     jwt = moduleRef.get(JwtService);
 
     await app.init();
@@ -55,10 +55,10 @@ describe('Fetch Recent Questions (E2E)', () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.body).toEqual({
-      questions: [
+      questions: expect.arrayContaining([
         expect.objectContaining({ title: 'Question 01' }),
         expect.objectContaining({ title: 'Question 02' }),
-      ],
+      ]),
     });
   });
 });

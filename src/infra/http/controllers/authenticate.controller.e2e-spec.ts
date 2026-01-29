@@ -1,12 +1,12 @@
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { hash } from 'bcryptjs';
-import { StudentFacotry } from 'test/factories/make-student.js';
+import { StudentFactory } from 'test/factories/make-student.js';
 import { DatabaseModule } from '@/infra/database/database.module.js';
 
 describe('Autenticate (E2E)', () => {
   let app: INestApplication;
-  let studentFactory: StudentFacotry;
+  let studentFactory: StudentFactory;
 
   beforeAll(async () => {
     const { Test } = await import('@nestjs/testing');
@@ -14,11 +14,11 @@ describe('Autenticate (E2E)', () => {
 
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule, DatabaseModule],
-      providers: [StudentFacotry],
+      providers: [StudentFactory],
     }).compile();
 
     app = moduleRef.createNestApplication();
-    studentFactory = moduleRef.get(StudentFacotry);
+    studentFactory = moduleRef.get(StudentFactory);
 
     await app.init();
   });
