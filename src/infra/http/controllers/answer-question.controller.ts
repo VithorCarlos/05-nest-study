@@ -23,7 +23,7 @@ type AnswerQuestionBodySchema = z.infer<typeof AnswerQuestionControllerSchema>;
 export class AnswerQuestionController {
   constructor(private answerQuestion: AnswerQuestionUseCase) {}
 
-  @Post('questions/:questionId/answers')
+  @Post('/questions/:questionId/answers')
   async handle(
     @Param('questionId') questionId: string,
     @CurrentUser() user: UserPayload,

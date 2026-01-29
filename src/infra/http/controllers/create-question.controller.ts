@@ -18,7 +18,7 @@ type CreateQuestionBodySchema = z.infer<typeof createQuestionControllerSchema>;
 export class CreateQuestionController {
   constructor(private createQuestion: CreateQuestionUseCase) {}
 
-  @Post('questions')
+  @Post('/questions')
   async handle(
     @CurrentUser() user: UserPayload,
     @Body(bodyValidator) body: CreateQuestionBodySchema,
