@@ -1,6 +1,7 @@
 import { Either, right } from '@/core/either';
 import { QuestionComment } from '../../enterprise/entities/question-comment';
 import { QuestionCommentRepository } from '../repositories/question-comment-repository';
+import { Injectable } from '@nestjs/common';
 
 interface FetchQuestionsCommentsRequest {
   page: number;
@@ -13,7 +14,7 @@ type FetchQuestionsCommentsResponse = Either<
     questionComments: QuestionComment[];
   }
 >;
-
+@Injectable()
 export class FetchQuestionCommentsUseCase {
   constructor(private questionCommentsRepository: QuestionCommentRepository) {}
 

@@ -4,6 +4,7 @@ import { AnswersRepository } from '../repositories/answers-repository';
 import { Either, left, right } from '@/core/either';
 import { ResourceNotFoundError } from '@/core/errors/error/resource-not-found-error';
 import { NotAllowedError } from '@/core/errors/error/not-allowed-error';
+import { Injectable } from '@nestjs/common';
 
 interface ChooseQuestionBestAnswerRequest {
   authorId: string;
@@ -16,7 +17,7 @@ type ChooseQuestionBestAnswerResponse = Either<
     question: Question;
   }
 >;
-
+@Injectable()
 export class ChooseQuestionBestAnswerUseCase {
   constructor(
     private questionsRepository: QuestionsRepository,
