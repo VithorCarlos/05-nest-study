@@ -2,51 +2,47 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { JwtService } from '@nestjs/jwt';
 import { StudentFactory } from 'test/factories/make-student.js';
-import { DatabaseModule } from '@/infra/database/database.module.js';
-import type { PrismaService } from '@/infra/database/prisma/prisma.service.js';
-import { AnswerCommentsFactory } from 'test/factories/make-answer-comments.js';
-import { AnswerFactory } from 'test/factories/make-answer.js';
 import { QuestionFactory } from 'test/factories/make-questions.js';
+import { DatabaseModule } from '@/infra/database/database.module.js';
+import { QuestionCommentsFactory } from 'test/factories/make-question-comment.js';
+import { AnswerFactory } from 'test/factories/make-answer.js';
+import { AnswerCommentsFactory } from 'test/factories/make-answer-comments.js';
 
-describe('Delete Answer Comment (E2E)', () => {
+describe('Fetch Answer Comments (E2E)', () => {
   let app: INestApplication;
   let jwt: JwtService;
   let studentFactory: StudentFactory;
-  let answerCommentsFactory: AnswerCommentsFactory;
-  let answerFactory: AnswerFactory;
   let questionFactory: QuestionFactory;
-
-  let prisma: PrismaService;
+  let answerFactory: AnswerFactory;
+  let answerCommentsFactory: AnswerCommentsFactory;
 
   beforeAll(async () => {
     const { Test } = await import('@nestjs/testing');
     const { AppModule } = await import('../../app.module.js');
-    const { PrismaService } =
-      await import('../../database/prisma/prisma.service.js');
 
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule, DatabaseModule],
       providers: [
         StudentFactory,
-        AnswerFactory,
         QuestionFactory,
+        AnswerFactory,
+        QuestionCommentsFactory,
         AnswerCommentsFactory,
       ],
     }).compile();
 
     app = moduleRef.createNestApplication();
-    prisma = moduleRef.get(PrismaService);
-    studentFactory = moduleRef.get(StudentFactory);
-    answerFactory = moduleRef.get(AnswerFactory);
-    questionFactory = moduleRef.get(QuestionFactory);
-    answerCommentsFactory = moduleRef.get(AnswerCommentsFactory);
 
+    studentFactory = moduleRef.get(StudentFactory);
+    questionFactory = moduleRef.get(QuestionFactory);
+    answerFactory = moduleRef.get(AnswerFactory);
+    answerCommentsFactory = moduleRef.get(AnswerCommentsFactory);
     jwt = moduleRef.get(JwtService);
 
     await app.init();
   });
 
-  test('[DELETE] /answers/comments/:id', async () => {
+  test('[GET] /answers/:answerId/comments', async () => {
     const user = await studentFactory.makePrismaStudent();
 
     const accessToken = jwt.sign({ sub: user.id.toString() });
@@ -60,26 +56,32 @@ describe('Delete Answer Comment (E2E)', () => {
       questionId: question.id,
     });
 
-    const answerComment = await answerCommentsFactory.makePrismaAnswer({
-      authorId: user.id,
-      answerId: answer.id,
-    });
+    await Promise.all([
+      answerCommentsFactory.makePrismaAnswer({
+        authorId: user.id,
+        answerId: answer.id,
+        content: 'Comment 01',
+      }),
+      answerCommentsFactory.makePrismaAnswer({
+        authorId: user.id,
+        answerId: answer.id,
+        content: 'Comment 02',
+      }),
+    ]);
 
-    const answerCommentId = answerComment.id.toString();
+    const answerId = answer.id.toString();
 
     const response = await request(app.getHttpServer())
-      .delete(`/answers/comments/${answerCommentId}`)
+      .get(`/answers/${answerId}/comments`)
       .set('Authorization', `Bearer ${accessToken}`)
       .send();
 
-    expect(response.statusCode).toBe(204);
-
-    const answerCommentOnDatabase = await prisma.comment.findUnique({
-      where: {
-        id: answerCommentId,
-      },
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual({
+      comments: expect.arrayContaining([
+        expect.objectContaining({ content: 'Comment 01' }),
+        expect.objectContaining({ content: 'Comment 02' }),
+      ]),
     });
-
-    expect(answerCommentOnDatabase).toBeNull();
   });
 });
