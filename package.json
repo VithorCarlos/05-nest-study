@@ -50,6 +50,7 @@
     "@rocketseat/eslint-config": "^2.2.2",
     "@swc/core": "^1.15.8",
     "@types/bcryptjs": "^3.0.0",
+    "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.0",
     "@types/multer": "^2.0.0",
     "@types/node": "^22.10.7",
