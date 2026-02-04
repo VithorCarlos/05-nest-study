@@ -8,7 +8,7 @@ import { CreateQuestionUseCase } from '@/domain/forum/application/use-cases/crea
 const createQuestionControllerSchema = z.object({
   title: z.string(),
   content: z.string(),
-  attachments: z.array(z.uuid()),
+  attachments: z.array(z.uuid()).default([]),
 });
 
 const bodyValidator = new ZodValidationPipe(createQuestionControllerSchema);

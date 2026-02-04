@@ -22,7 +22,7 @@ describe('Create answer', () => {
   it('should be able to create a new answer', async () => {
     const result = await sut.execute({
       questionId: '1',
-      instructorId: '1',
+      authorId: '1',
       content: 'Describing a new content',
       attachmentsIds: ['1', '2'],
     });
@@ -36,5 +36,27 @@ describe('Create answer', () => {
       expect.objectContaining({ attachmentId: new UniqueEntityId('1') }),
       expect.objectContaining({ attachmentId: new UniqueEntityId('2') }),
     ]);
+  });
+
+  it('should persist attachment when creating a new answer', async () => {
+    const result = await sut.execute({
+      authorId: '1',
+      attachmentsIds: ['1', '2'],
+      content: 'Describing a new content',
+      questionId: '1',
+    });
+
+    expect(result.isRight()).toBe(true);
+    expect(inMemoryAnswerAttachmentsRepository.items).toHaveLength(2);
+    expect(inMemoryAnswerAttachmentsRepository.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          attachmentId: new UniqueEntityId('1'),
+        }),
+        expect.objectContaining({
+          attachmentId: new UniqueEntityId('2'),
+        }),
+      ]),
+    );
   });
 });
