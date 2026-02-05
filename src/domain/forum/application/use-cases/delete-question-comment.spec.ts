@@ -3,15 +3,19 @@ import { InMemoryQuestionsCommentsRepository } from 'test/repositories/in-memory
 import { DeleteQuestionCommentUseCase } from './delete-question-comment';
 import { UniqueEntityId } from '@/core/entities/unique-entity-id';
 import { NotAllowedError } from '@/core/errors/error/not-allowed-error';
+import { InMemoryStudentsRepository } from 'test/repositories/in-memory-students-repository';
 
 let inMemoryQuestionsCommentsRepository: InMemoryQuestionsCommentsRepository;
-// system in memory test
+let inMemoryStudentsRepository: InMemoryStudentsRepository;
+
 let sut: DeleteQuestionCommentUseCase;
 
 describe('Delete question comment', () => {
   beforeEach(() => {
+    inMemoryStudentsRepository = new InMemoryStudentsRepository();
+
     inMemoryQuestionsCommentsRepository =
-      new InMemoryQuestionsCommentsRepository();
+      new InMemoryQuestionsCommentsRepository(inMemoryStudentsRepository);
 
     sut = new DeleteQuestionCommentUseCase(inMemoryQuestionsCommentsRepository);
   });
