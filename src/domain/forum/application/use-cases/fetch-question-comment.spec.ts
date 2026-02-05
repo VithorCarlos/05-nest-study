@@ -39,9 +39,9 @@ describe('Fetch question awnsers', () => {
       authorId: student.id,
     });
 
-    inMemoryQuestionCommentRepository.create(comment1);
-    inMemoryQuestionCommentRepository.create(comment2);
-    inMemoryQuestionCommentRepository.create(comment3);
+    await inMemoryQuestionCommentRepository.create(comment1);
+    await inMemoryQuestionCommentRepository.create(comment2);
+    await inMemoryQuestionCommentRepository.create(comment3);
 
     const result = await sut.execute({
       questionId: 'question-1',

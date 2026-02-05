@@ -40,6 +40,7 @@ export class PrismaAnswerAttachmentsRepository implements AnswerAttachmentsRepos
 
     return answerAttachments.map(PrismaAnswerAttachmentMapper.toDomain);
   }
+
   async deleteByAnswerId(answerId: string): Promise<void> {
     await this.prisma.attachment.deleteMany({
       where: {
