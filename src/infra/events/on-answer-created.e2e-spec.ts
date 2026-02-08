@@ -1,0 +1,70 @@
+import { INestApplication } from '@nestjs/common';
+import request from 'supertest';
+import { JwtService } from '@nestjs/jwt';
+import { StudentFactory } from 'test/factories/make-student.js';
+import { DatabaseModule } from '@/infra/database/database.module.js';
+import type { PrismaService } from '@/infra/database/prisma/prisma.service.js';
+import { QuestionFactory } from 'test/factories/make-questions.js';
+import { waitFor } from 'test/utils/wait-for.js';
+import { DomainEvents } from '@/core/events/domain-events.js';
+
+describe('On answer created (E2E)', () => {
+  let app: INestApplication;
+  let jwt: JwtService;
+  let studentFactory: StudentFactory;
+  let questionFactory: QuestionFactory;
+
+  let prisma: PrismaService;
+
+  beforeAll(async () => {
+    const { Test } = await import('@nestjs/testing');
+    const { AppModule } = await import('../app.module.js');
+    const { PrismaService } =
+      await import('../database/prisma/prisma.service.js');
+
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule, DatabaseModule],
+      providers: [StudentFactory, QuestionFactory],
+    }).compile();
+
+    app = moduleRef.createNestApplication();
+    prisma = moduleRef.get(PrismaService);
+    studentFactory = moduleRef.get(StudentFactory);
+    questionFactory = moduleRef.get(QuestionFactory);
+    jwt = moduleRef.get(JwtService);
+
+    DomainEvents.shouldRun = true;
+
+    await app.init();
+  });
+
+  it('shoud be able to send a notification when answer is created', async () => {
+    const user = await studentFactory.makePrismaStudent();
+
+    const accessToken = jwt.sign({ sub: user.id.toString() });
+
+    const question = await questionFactory.makePrismaQuestion({
+      authorId: user.id,
+    });
+
+    const questionId = question.id.toString();
+
+    await request(app.getHttpServer())
+      .post(`/questions/${questionId}/answers`)
+      .set('Authorization', `Bearer ${accessToken}`)
+      .send({
+        content: 'New answer',
+        attachments: [],
+      });
+
+    await waitFor(async () => {
+      const notificationOnDatabase = await prisma.notification.findFirst({
+        where: {
+          recipientId: user.id.toString(),
+        },
+      });
+
+      expect(notificationOnDatabase).not.toBeNull();
+    });
+  });
+});
